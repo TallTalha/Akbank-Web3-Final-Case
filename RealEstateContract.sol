@@ -72,7 +72,7 @@ contract RealEstateContract{
         //Dynamized identity assignment with properties[msg.sender].length
         
     }
-    function deleteDeed(uint _propertyID) external {
+    function deleteDeed(uint _propertyID) onlyDeedOwner(_propertyID) external {
         delete  properties[msg.sender][_propertyID]; 
         //Solidity does not allow pop operation. Only the data in the specified index has been deleted.
         
@@ -130,6 +130,7 @@ contract RealEstateContract{
         return adverts[_advertID];
     }
     function getSalePrice(uint _advertID) external view returns(uint){
+        require(_advertID < adverts.length, "Invalid advert id.");
         return adverts[_advertID].salePrice;
     }
 
@@ -145,8 +146,8 @@ contract RealEstateContract{
         properties[msg.sender].push(properties[oldOwner][advertInfo[_advertID][oldOwner]]);
         
         uint index = properties[msg.sender].length - 1 ;
-        properties[msg.sender][index].owner = msg.sender;
-        properties[msg.sender][index].changedDate = block.timestamp ;
+        properties[msg.sender][index].owner = msg.sender; //Owner is changed.
+        properties[msg.sender][index].changedDate = block.timestamp ; //Specifies when the property changes owner.
         properties[msg.sender][index].salePrice = 0;  //Sale price reset.
         properties[msg.sender][index].forSale = false;  //It is blocked from listing by setting the forSale value to false.
 
