@@ -83,6 +83,7 @@ contract RealEstateContract{
     //In theory, those whose "forSale" variable is "true" will appear on the property listing page.
     function createAdvert(uint _propertyID, uint256 _salePrice) onlyDeedOwner(_propertyID) external {
         
+        require(properties[msg.sender][_propertyID].forSale == false, "The property is already for sale.");
         require(_salePrice > 0,"The selling price cannot be zero units."); //To prevent user error
         
         properties[msg.sender][_propertyID].salePrice = _salePrice;
@@ -99,17 +100,14 @@ contract RealEstateContract{
 
         advertCounter +=1;
     }
-    
-    //In theory, those whose "forSale" variable is "true" will appear on the property listing page.
-    function changeForSale(uint _propertyID, bool _state) onlyDeedOwner(_propertyID) external {
-        properties[msg.sender][_propertyID].forSale = _state;
-    }
+   
     function changeSalePrice(uint _propertyID, uint256 _salePrice) onlyDeedOwner(_propertyID) external {
         properties[msg.sender][_propertyID].salePrice = _salePrice;
     }
 
     function cancelAdvert(uint _propertyID) onlyDeedOwner(_propertyID) external {
-        
+        require(properties[msg.sender][_propertyID].forSale == true, "The property is not available for sale.");
+
         properties[msg.sender][_propertyID].salePrice = 0;//Sale price reset.
         properties[msg.sender][_propertyID].forSale = false;//It is blocked from listing by setting the forSale value to false.
         
@@ -156,7 +154,7 @@ contract RealEstateContract{
         
         payable(oldOwner).transfer(bal); //Payment realized.
 
-        emit BuyProperty(oldOwner,msg.sender,block.timestamp); //Logging the data.
+        emit BuyProperty(oldOwner,msg.sender, properties[msg.sender][index].changedDate ); //Logging the data.
     }
 
     //Modifiers
